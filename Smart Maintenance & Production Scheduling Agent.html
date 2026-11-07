@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart Maintenance &amp; Production Scheduling Agent</title>
+<style>
+:root{--bg:#f1f2fb;--card:#fff;--tx:#1e1b3a;--mu:#6b7090;--bd:#e3e5f3;--c1:#6366f1;--c2:#06b6d4;--c3:#10b981;--c4:#f59e0b;--c5:#f43f5e;--c6:#8b5cf6;--sh:0 4px 16px rgba(80,70,160,.10);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0d0f20;--card:#171a33;--tx:#eceefc;--mu:#9aa0c8;--bd:#2a2e52;--sh:0 4px 16px rgba(0,0,0,.45)}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0d0f20;--card:#171a33;--tx:#eceefc;--mu:#9aa0c8;--bd:#2a2e52;--sh:0 4px 16px rgba(0,0,0,.45)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.hd{background:linear-gradient(120deg,#4f46e5,#7c3aed 55%,#0ea5e9);color:#fff;padding:16px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.hd h1{font-size:20px;margin:0}.hd p{margin:2px 0 0;font-size:12px;opacity:.85}
+.pill{background:rgba(255,255,255,.2);border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;white-space:nowrap}
+.wrap{max-width:1180px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;box-shadow:var(--sh);margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:6px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+label{font-size:11px;color:var(--mu);display:flex;flex-direction:column;gap:2px}
+select,input,button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:7px 10px}
+button{cursor:pointer;font-weight:600}button:hover{filter:brightness(1.07)}
+.g1{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:0}.g2{background:linear-gradient(135deg,#06b6d4,#10b981);color:#fff;border:0}
+.g3{background:linear-gradient(135deg,#f59e0b,#f43f5e);color:#fff;border:0}.g4{background:linear-gradient(135deg,#f43f5e,#be123c);color:#fff;border:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.k{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;box-shadow:var(--sh);border-top:4px solid var(--a);position:relative}
+.k i{position:absolute;right:10px;top:8px;font-style:normal;font-size:22px;opacity:.9}.k span{font-size:11px;color:var(--mu)}.k b{display:block;font-size:24px;color:var(--a)}.k small{color:var(--mu);font-size:11px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.tabs button.on{background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;border:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.m{border:1px solid var(--bd);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 14%,var(--card)),var(--card))}
+.ring{width:64px;height:64px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--a) calc(var(--p)*1%),var(--bd) 0)}
+.ring b{width:48px;height:48px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:14px;color:var(--a)}
+.m small{color:var(--mu);display:block;font-size:11px}.tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--a);color:#fff}
+.bar{height:6px;border-radius:9px;background:var(--bd);overflow:hidden;margin:3px 0 6px}.bar i{display:block;height:100%;border-radius:9px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+canvas{width:100%;display:block}.leg{font-size:11px;color:var(--mu);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border-bottom:1px solid var(--bd);padding:6px 7px;text-align:left}th{color:var(--mu);font-weight:600}
+.st{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;color:#fff;white-space:nowrap}
+.ev{display:flex;gap:8px;padding:7px 8px;border-radius:10px;margin-bottom:6px;background:color-mix(in srgb,var(--a) 12%,var(--card));border-left:4px solid var(--a);font-size:12px}
+.ban{background:linear-gradient(90deg,#f43f5e,#f59e0b);color:#fff;border-radius:12px;padding:9px 14px;margin-bottom:14px;font-weight:600}
+#chat{max-height:360px;overflow:auto;display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+.b{padding:8px 12px;border-radius:12px;max-width:85%;white-space:pre-wrap}.u{align-self:flex-end;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}.a{background:var(--bg);border:1px solid var(--bd)}
+.chip{font-size:11px;padding:4px 10px;border-radius:99px}.hide{display:none}.mu{color:var(--mu)}
+.donut{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;flex:none}.donut b{width:88px;height:88px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center;font-size:12px;line-height:1.2}
+.flow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.flow span{padding:8px 14px;border-radius:99px;color:#fff;font-weight:600;font-size:12px}
+.big{font-size:22px;font-weight:800}
+.act{display:flex;gap:5px;margin-top:6px}.act button{font-size:10px;padding:3px 7px;border-radius:8px}
+.hr{display:flex;align-items:center;gap:2px;margin-bottom:3px}.hr small{width:24px;color:var(--mu)}.hr i{flex:1;height:18px;border-radius:3px;min-width:4px}
+.pipe span{box-shadow:var(--sh)}
+.lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+input[type=range]{width:100%;padding:0;accent-color:#6366f1}
+.sc{display:grid;gap:8px}.sc button{text-align:left;padding:10px 12px;border-radius:12px;font-weight:600;color:#fff;border:0}
+.calc{border-radius:14px;padding:12px;background:color-mix(in srgb,var(--c6) 10%,var(--card));border:1px solid var(--bd)}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#1e1b3a;color:#fff;padding:9px 16px;border-radius:99px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:9}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="hd"><div><h1>🛠️ Smart Maintenance &amp; Production Scheduling Agent</h1><p>TorqueWorks Industries Pvt. Ltd. (fictional) · ProGrip Screwdriver · Sense → Predict → Decide → Act → Explain</p></div>
+<div class="row" style="align-items:center"><span class="pill" id="pp"></span><span class="pill" id="dp"></span><button id="th" class="pill" style="border:0;color:#fff">🌓 Theme</button></div></div>
+<div class="wrap">
+<div class="card"><div class="row">
+<label>Maintenance policy<select id="pol"><option value="agent">🤖 AI Agent (risk model + cost rule)</option><option value="fixed30">📅 Fixed 30-day calendar</option><option value="reactive">🔥 Reactive (fix after failure)</option></select></label>
+<label>Horizon (days)<input id="hz" type="number" value="90" min="30" max="180" step="10" style="width:78px"></label>
+<label>Orders<input id="no" type="number" value="24" min="8" max="60" step="2" style="width:68px"></label>
+<label>Seed<input id="sd" type="number" value="1" min="1" max="999" style="width:68px"></label>
+<button class="g1" id="reset">↻ Start / reset</button>
+<button id="d1">+1 day</button><button id="d7">+7 days</button><button id="end">⏭ Run to end</button>
+<button class="g2" id="play">▶ Auto-play</button>
+<label>Speed<select id="spd"><option value="900">Slow</option><option value="450" selected>Normal</option><option value="120">Fast</option></select></label>
+<button class="g3" id="rush">⚡ Rush order</button>
+<label>Machine<select id="bm"></select></label><button class="g4" id="brk">💥 Break it</button>
+</div></div>
+<div id="ban"></div>
+<div class="kpis" id="kpis"></div>
+<div class="tabs" id="tabs"></div>
+
+<section id="t-dash">
+<div class="card"><h3>🧠 Agent pipeline (live)</h3><div class="flow pipe" id="pipe"></div><div class="mu" id="pipeTxt" style="font-size:12px"></div></div>
+<div class="card"><h3>🩺 Machine health (live failure risk, next 7 days)</h3><div class="cards" id="cards"></div></div>
+<div class="card"><h3>🌡️ Risk heatmap (last 30 days, one cell per day)</h3><div id="hm"></div><div class="leg"><span><i style="background:var(--c3)"></i>Low risk</span><span><i style="background:var(--c4)"></i>Watch (30% or more)</span><span><i style="background:var(--c5)"></i>Critical (70% or more)</span><span>Hover a cell for the exact value</span></div></div>
+<div class="card"><h3>🗓️ Schedule Gantt: production and maintenance</h3><canvas id="g" height="240"></canvas>
+<div class="leg"><span><i style="background:linear-gradient(90deg,#6366f1,#06b6d4,#10b981,#f43f5e)"></i>Production (one colour per order)</span><span><i style="background:#f59e0b"></i>Maintenance</span><span><i style="background:#f43f5e"></i>Breakdown / repair</span></div></div>
+<div class="two">
+<div class="card"><h3>📈 Failure-risk trend</h3><canvas id="tr" height="200"></canvas><div class="leg" id="trl"></div></div>
+<div class="card"><h3>💰 Cost breakdown and machine utilisation</h3><div class="row" style="align-items:center;gap:16px"><div class="donut" id="dn"></div><div id="ut" style="flex:1;min-width:160px"></div></div><div class="leg" id="dl"></div></div>
+</div>
+<div class="two">
+<div class="card"><h3>🔔 Live agent feed</h3><div id="feed"></div></div>
+<div class="card"><h3>📦 Orders</h3><div class="scroll" id="orders" style="max-height:330px"></div></div>
+</div>
+</section>
+
+<section id="t-cmp" class="hide"><div class="card"><h3>⚖️ AI agent vs fixed calendar vs reactive</h3>
+<p class="mu">Same orders and same random failures for every policy, averaged over 3 seeds, using the horizon and order count above.</p>
+<button class="g1" id="runcmp">Run comparison</button><div id="cmp" style="margin-top:12px"></div></div></section>
+
+<section id="t-chat" class="hide"><div class="card"><h3>💬 Ask the agent</h3><div id="chat"></div>
+<div class="row" style="margin-bottom:8px" id="chips"></div>
+<div class="row"><input id="q" placeholder="Ask about risk, maintenance, schedule, cost…" style="flex:1;min-width:200px"><button class="g1" id="send">Send</button></div></div></section>
+
+<section id="t-lab" class="hide"><div class="lab">
+<div class="card"><h3>🎚️ Agent tuning</h3><p class="mu" style="font-size:12px;margin-top:0">The agent maintains a machine when expected breakdown loss × sensitivity is higher than maintenance cost. Move the slider while the simulation runs and watch the cards and the log react.</p>
+<label>Risk sensitivity: <b id="sensv">×1.0</b></label><input id="sens" type="range" min="20" max="300" value="100"><div class="leg"><span>Cautious about maintenance (×0.2)</span><span style="margin-left:auto">Maintains early (×3.0)</span></div></div>
+<div class="card"><h3>🎬 Scenarios</h3><div class="sc"><button id="sc1" style="background:linear-gradient(135deg,#f43f5e,#f59e0b)">🔥 Machine crisis: break the two most worn machines</button><button id="sc2" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">⚡ Rush hour: three urgent orders arrive</button><button id="sc3" style="background:linear-gradient(135deg,#10b981,#06b6d4)">🧰 Service all machines now</button></div>
+<div class="row" style="margin-top:10px"><label>Custom rush order (units)<input id="rq" type="number" value="5000" min="1000" max="20000" step="1000" style="width:110px"></label><button class="g3" id="rq1">⚡ Add</button></div></div>
+<div class="card"><h3>🧮 Cost-rule calculator</h3><label>Machine<select id="lm"></select></label><div class="calc" id="calc" style="margin-top:8px"></div></div>
+</div></section>
+<section id="t-log" class="hide"><div class="card"><h3>📜 Decision log</h3><div class="scroll" id="log"></div></div></section>
+<section id="t-about" class="hide"><div class="card" id="about"></div></section>
+</div>
+
+<div id="toast"></div>
+<script>
+
+const HPD=16,CH=8;
+const MS={M1:{n:"Lathe",life:600,pmH:4,pmC:3500,bdH:20,bdC:22000,loss:1200,cyc:4.0,t0:48,c0:9},
+M2:{n:"Milling Machine",life:500,pmH:4,pmC:4500,bdH:24,bdC:30000,loss:1500,cyc:3.2,t0:52,c0:11},
+M3:{n:"Drill Press",life:700,pmH:2,pmC:2000,bdH:10,bdC:9000,loss:800,cyc:1.6,t0:42,c0:5},
+M4:{n:"Injection Moulding",life:450,pmH:6,pmC:8000,bdH:36,bdC:55000,loss:2500,cyc:4.8,t0:70,c0:18},
+M5:{n:"Packaging Machine",life:550,pmH:3,pmC:3000,bdH:12,bdC:10000,loss:900,cyc:2.4,t0:38,c0:4}};
+const IDS=Object.keys(MS);
+const STEPS={S1:["M1",[]],S2:["M2",["S1"]],S3:["M3",["S2"]],S4:["M4",[]],S5:["M5",["S3","S4"]]};
+const SN={S1:"Turn shaft",S2:"Shape tip",S3:"Drill hole",S4:"Mould handle",S5:"Assemble + pack"};
+const bdT=k=>MS[k].bdC+MS[k].bdH*MS[k].loss, pmT=k=>MS[k].pmC+MS[k].pmH*MS[k].loss;
+const haz=w=>Math.min(.002+2.5*Math.max(w-.65,0)**2,.9)/9.6;
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const gauss=r=>Math.sqrt(-2*Math.log(r()+1e-12))*Math.cos(2*Math.PI*r());
+const sens=(k,w,r)=>{const m=MS[k];return[m.t0+30*w+2*gauss(r),2+5*w+.3*gauss(r),m.c0*(1+.25*w)+.3*gauss(r)]};
+const feat=(k,since,s)=>{const m=MS[k],u=since/m.life;return[u,u*u,(s[0]-m.t0)/30,(s[1]-2)/5,s[2]/m.c0-1]};
+const cpath=q=>q/1000*(MS.M1.cyc+MS.M2.cyc+MS.M3.cyc+MS.M5.cyc);
+
+// ---- failure-prediction model: logistic regression trained in the browser on simulated history
+function trainModel(){
+ const r=rng(123),X=[],Y=[],G=[];
+ for(let run=0;run<40;run++)for(const k of IDS){
+  const m=MS[k];let since=0,last=0,iv=20+Math.floor(r()*60);const fails=[],rows=[];
+  for(let d=0;d<180;d++){
+   if(d-last>=iv){since=0;last=d;iv=20+Math.floor(r()*60)}
+   const rh=Math.max(0,Math.min(16,Math.round(10+4*gauss(r))));let f=0;
+   for(let h=0;h<rh;h++){since++;if(r()<haz(since/m.life)){f=1;since=0;last=d;break}}
+   rows.push(feat(k,since,sens(k,since/m.life,r)));fails.push(f);
+  }
+  for(let d=0;d<180;d++){let y=0;for(let j=d+1;j<=d+7&&j<180;j++)if(fails[j])y=1;X.push(rows[d]);Y.push(y);G.push(run)}
+ }
+ const tr=[],te=[];G.forEach((g,i)=>(g<32?tr:te).push(i));
+ const nf=5;let w=new Array(nf).fill(0),b=-3;
+ for(let ep=0;ep<450;ep++){const gw=new Array(nf).fill(0);let gb=0;
+  for(const i of tr){const x=X[i];let z=b;for(let j=0;j<nf;j++)z+=w[j]*x[j];const e=1/(1+Math.exp(-z))-Y[i];for(let j=0;j<nf;j++)gw[j]+=e*x[j];gb+=e}
+  for(let j=0;j<nf;j++)w[j]-=9*gw[j]/tr.length;b-=9*gb/tr.length}
+ const pr=x=>{let z=b;for(let j=0;j<nf;j++)z+=w[j]*x[j];return 1/(1+Math.exp(-z))};
+ const sc=te.map(i=>[pr(X[i]),Y[i]]).sort((a,c)=>a[0]-c[0]);let pos=0,neg=0,rs=0;
+ sc.forEach((s,i)=>{if(s[1]){pos++;rs+=i+1}else neg++});
+ const auc=(rs-pos*(pos+1)/2)/(pos*neg);
+ return{risk:pr,auc,rows:X.length,rate:Y.reduce((a,c)=>a+c,0)/Y.length};
+}
+
+// ---- factory simulation + agent policies
+function Sim(policy,seed,nOrd,days,model){
+ const T=days*HPD,s={policy,t:0,T,days,log:[],seg:[],bd:0,pm:0,down:0,bdCost:0,pmCost:0,done:{},orders:[],jobs:[],forced:new Set(),m:{},rh:{},busy:{},ls:{}};
+ const r=rng(seed),nr=rng(seed+7),orr=rng(seed+999);
+ const U={};IDS.forEach(k=>{U[k]=Array.from({length:T+1},()=>r())});
+ IDS.forEach(k=>{s.rh[k]=[];s.busy[k]=0});IDS.forEach(k=>s.m[k]={since:0,down:0,pmReq:null,pmLeft:0,cur:null,lastPm:0,risk:0,sn:[MS[k].t0,2,MS[k].c0]});
+ const cust=["Metro Hardware","Bharat Tools","HomeFix Stores","ProBuild Supplies","Delta Traders","Apex Engineering","CityMart Retail"];
+ const rel=Array.from({length:nOrd},()=>Math.floor(orr()*Math.max(days-25,5))).sort((a,b)=>a-b);
+ const qs=[2000,4000,6000,8000,10000,12000,15000],pr=[95,100,110,120];
+ for(let i=0;i<nOrd;i++){const q=qs[Math.floor(orr()*7)],rl=rel[i]*HPD,sl=6+Math.floor(orr()*9),p=pr[Math.floor(orr()*4)];
+  s.orders.push({id:"O"+(i+1),cust:cust[i%7],qty:q,rel:rl,dl:rl+Math.ceil(cpath(q))+sl*HPD,val:q*p,rush:false,on:false})}
+ function addJobs(o){for(const st in STEPS){const mm=STEPS[st][0];s.jobs.push({o,st,m:mm,rem:Math.max(1,Math.ceil(o.qty/1000*MS[mm].cyc)),done:false,tot:Math.max(1,Math.ceil(o.qty/1000*MS[mm].cyc))})}}
+ s.orders.forEach(addJobs);
+ s.day=()=>Math.floor(s.t/HPD);
+ const log=(k,m,x)=>s.log.push({d:s.day(),k,m,x});
+ const jobOf=(o,st)=>s.jobs.find(j=>j.o===o&&j.st===st);
+ const ready=k=>s.jobs.filter(j=>j.m===k&&!j.done&&j.o.on&&STEPS[j.st][1].every(p=>jobOf(j.o,p).done)).sort((a,b)=>a.o.dl-b.o.dl);
+ const seg=(k,kind,o,st)=>{const last=s.ls[k];if(last&&last.kind===kind&&last.o===o&&last.e===s.t)last.e=s.t+1;else{const n={m:k,kind,o,st,s:s.t,e:s.t+1};s.seg.push(n);s.ls[k]=n}};
+ s.rush=q=>{const o={id:"R"+(s.orders.length+1),cust:"RUSH CUSTOMER",qty:q,rel:s.t,dl:s.t+Math.ceil(cpath(q))+3*HPD,val:q*130,rush:true,on:true};
+  s.orders.push(o);addJobs(o);log("RUSH_ORDER",null,"Rush order "+o.id+" ("+q.toLocaleString("en-IN")+" units) arrived. Earliest-deadline dispatch puts it ahead of less urgent work; deadline is day "+Math.floor(o.dl/HPD)+".");return o};
+ function review(){
+  for(const k of IDS){const st=s.m[k];st.sn=sens(k,st.since/MS[k].life,nr);
+   st.risk=model.risk(feat(k,st.since,st.sn));s.rh[k].push(st.risk);s.cnt.sense++;s.cnt.pred++;
+   if(st.pmReq!==null||st.down>s.t||st.pmLeft>0)continue;
+   if(s.policy==="agent"){const loss=st.risk*bdT(k)*s.sens,cost=pmT(k);
+    if(loss>cost&&st.since/MS[k].life>.3){const w=st.risk>=.5?HPD:4*HPD;st.pmReq=s.t+w;
+     log("PM_REQUEST",k,MS[k].n+" ("+k+"): failure risk "+Math.round(st.risk*100)+"% in the next 7 days. Expected breakdown loss INR "+Math.round(loss).toLocaleString("en-IN")+" is higher than maintenance cost INR "+Math.round(cost).toLocaleString("en-IN")+". Maintenance will start at the first idle slot, or within "+w/HPD+" day(s) at the latest.")}}
+   else if(s.policy==="fixed30"&&s.day()-st.lastPm>=30){st.pmReq=s.t+2*HPD;log("PM_REQUEST",k,MS[k].n+" ("+k+"): 30-day calendar service is due (fixed policy, condition not considered).")}}
+ }
+ function tick(){const t=s.t;
+  for(const k of IDS){const st=s.m[k],sp=MS[k];
+   if(st.down>t){seg(k,"fail");continue}
+   if(!st.cur&&st.pmReq!==null&&st.pmLeft===0&&(ready(k).length===0||t>=st.pmReq-CH))st.pmLeft=sp.pmH;
+   if(st.pmLeft>0){seg(k,"pm");st.pmLeft--;s.down++;
+    if(st.pmLeft===0){st.since=0;st.pmReq=null;st.lastPm=s.day();s.pm++;s.pmCost+=pmT(k);log("PM_DONE",k,sp.n+" ("+k+") maintenance finished; wear reset to zero.")}continue}
+   if(!st.cur){const j=ready(k)[0];if(j)st.cur={j,left:Math.min(CH,j.rem),n:0};else continue}
+   const j=st.cur.j,fail=s.forced.has(k)||U[k][t]<haz((st.since+1)/sp.life);st.since++;
+   if(fail){s.forced.delete(k);s.bd++;s.bdCost+=bdT(k);s.down+=sp.bdH;st.down=t+1+sp.bdH;st.since=0;st.pmReq=null;st.lastPm=s.day();j.rem+=st.cur.n;st.cur=null;seg(k,"fail");
+    log("BREAKDOWN",k,sp.n+" ("+k+") broke down while running "+j.o.id+" "+SN[j.st]+". Repair takes "+sp.bdH+" h. Work is re-dispatched around the repair, urgent orders first.");continue}
+   j.rem--;st.cur.n++;st.cur.left--;seg(k,"job",j.o.id,j.st);s.busy[k]++;
+   if(j.rem===0){j.done=true;if(j.st==="S5")s.done[j.o.id]=t+1;st.cur=null}else if(st.cur.left===0)st.cur=null}
+  s.t++}
+ s.advance=h=>{for(let i=0;i<h&&s.t<T;i++){if(s.t%HPD===0){s.orders.forEach(o=>{if(!o.on&&o.rel<=s.t)o.on=true});review()}tick()}};
+ s.kpis=()=>{let late=0,lc=0,comp=0,rel=0;
+  for(const o of s.orders){if(!o.on)continue;rel++;const e=s.done[o.id]!==undefined?s.done[o.id]:s.t;if(s.done[o.id]!==undefined)comp++;
+   if(e>o.dl&&(s.done[o.id]!==undefined||s.t>o.dl)){late++;lc+=(e-o.dl)*o.val*.02/HPD}}
+  return{bd:s.bd,pm:s.pm,down:s.down,late,lc,comp,rel,bdc:s.bdCost,pmc:s.pmCost,tot:s.bdCost+s.pmCost+lc}};
+ s.status=k=>{const st=s.m[k],c=st.down>s.t||st.risk>=.7?"r":st.risk>=.3?"y":"g";
+  return{c,state:st.down>s.t?"DOWN (repair)":st.pmLeft>0?"In maintenance":st.cur?"Running":"Idle",usage:st.since/MS[k].life,risk:st.risk,sn:st.sn,req:st.pmReq}};
+ s.sens=1;s.cnt={sense:0,pred:0};s.service=k=>{const st=s.m[k];if(st.pmReq===null&&st.down<=s.t&&st.pmLeft===0){st.pmReq=s.t+HPD;log("PM_REQUEST",k,"Manager requested service on "+MS[k].n+" ("+k+"). It starts at the first idle slot, or within 1 day at the latest.");return true}return false};
+ s.advance(0);return s;
+}
+
+
+const $=id=>document.getElementById(id),fmt=n=>Math.round(n).toLocaleString("en-IN");
+const MC=["#6366f1","#06b6d4","#10b981","#f59e0b","#f43f5e"],hue=o=>"hsl("+((parseInt(o.slice(1))*47)%360)+",65%,48%)";
+const PN={agent:"AI Agent",fixed30:"Fixed 30-day",reactive:"Reactive"},ICON={PM_REQUEST:["🔧","--c4"],PM_DONE:["✅","--c3"],BREAKDOWN:["💥","--c5"],RUSH_ORDER:["⚡","--c6"]};
+let model,sim,timer=null;
+IDS.forEach(k=>$("bm").add(new Option(k+" "+MS[k].n,k)));
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function reset(){stop();sim=Sim($("pol").value,+$("sd").value,+$("no").value,Math.min(180,Math.max(30,+$("hz").value)),model);sim.sens=+$("sens").value/100;sim.advance(0);
+ $("chat").innerHTML="";say("a","Hello! I am the maintenance and scheduling agent. Ask why a machine is being serviced, about risk, late orders or cost. You can also say: add a rush order of 5000 units, or simulate breakdown on M3.");render()}
+function stop(){if(timer){clearInterval(timer);timer=null}$("play").textContent="▶ Auto-play"}
+function play(){if(timer)return stop();$("play").textContent="⏸ Pause";timer=setInterval(()=>{if(sim.t>=sim.T)return stop();sim.advance(HPD);render()},+$("spd").value)}
+
+function render(){render0();extra()}
+function render0(){
+ const k=sim.kpis(),pc=sim.orders.length?Math.round(100*k.comp/Math.max(1,sim.orders.length)):0;
+ $("pp").textContent=({agent:"🤖 AI Agent",fixed30:"📅 Fixed 30-day",reactive:"🔥 Reactive"})[sim.policy];$("dp").textContent="Day "+sim.day()+" / "+sim.days;
+ $("kpis").innerHTML=[["Orders done",k.comp+" / "+k.rel,"released so far","📦","--c1"],["Breakdowns",k.bd,"unplanned stops","💥","--c5"],["Planned maintenance",k.pm,"preventive services","🔧","--c4"],["Downtime (h)",k.down,"repair + service hours","⏱️","--c6"],["Late orders",k.late,"INR "+fmt(k.lc)+" penalties","⏰","--c2"],["Total cost (INR)",fmt(k.tot),"all costs so far","💰","--c3"]].map(x=>'<div class="k" style="--a:var('+x[4]+')"><i>'+x[3]+"</i><span>"+x[0]+"</span><b>"+x[1]+"</b><small>"+x[2]+"</small></div>").join("");
+ const hot=IDS.filter(i=>sim.status(i).c==="r"),req=IDS.filter(i=>sim.m[i].pmReq!==null);
+ $("ban").innerHTML=hot.length||req.length?'<div class="ban">⚠️ '+(hot.length?hot.map(i=>i+" "+MS[i].n+" at "+Math.round(sim.status(i).risk*100)+"% risk"+(sim.status(i).state.startsWith("DOWN")?" (down)":"")).join(" · "):"")+(req.length?(hot.length?" · ":"")+"Maintenance requested: "+req.join(", "):"")+"</div>":"";
+ $("cards").innerHTML=IDS.map((id,i)=>{const s=sim.status(id),a={g:"--c3",y:"--c4",r:"--c5"}[s.c],u=sim.t?Math.round(100*sim.busy[id]/sim.t):0;
+  return '<div class="m" style="--a:var('+a+')"><div class="ring" style="--p:'+Math.max(3,Math.round(s.risk*100))+'"><b>'+Math.round(s.risk*100)+'%</b></div><div style="flex:1;min-width:0"><b>'+id+" "+MS[id].n+'</b><br><span class="tag">'+s.state+'</span><small>Wear '+Math.round(s.usage*100)+'%</small><div class="bar"><i style="width:'+Math.min(100,s.usage*100)+"%;background:"+MC[i]+'"></i></div><small>'+s.sn[0].toFixed(0)+" °C · "+s.sn[1].toFixed(1)+" mm/s · "+s.sn[2].toFixed(1)+" A</small><div class=\"act\"><button data-svc=\""+id+"\">🔧 Service</button><button data-brk=\""+id+"\">💥 Break</button></div></div></div>"}).join("");
+ const L=[["bdc","--c5","Breakdowns"],["pmc","--c4","Maintenance"],["lc","--c2","Late penalties"]],tot=Math.max(1,k.bdc+k.pmc+k.lc);let acc=0;
+ $("dn").style.background="conic-gradient("+(k.tot?L.map(l=>{const a=acc,b=acc+k[l[0]]/tot*100;acc=b;return"var("+l[1]+") "+a+"% "+b+"%"}).join(","):"var(--bd) 0 100%")+")";
+ $("dn").innerHTML="<b><span class='big'>"+(k.tot?Math.round(k.tot/1000):0)+"k</span>INR total</b>";
+ $("dl").innerHTML=L.map(l=>'<span><i style="background:var('+l[1]+')"></i>'+l[2]+" "+fmt(k[l[0]])+"</span>").join("");
+ $("ut").innerHTML="<small class='mu'>Utilisation (busy hours / elapsed)</small>"+IDS.map((id,i)=>{const u=sim.t?Math.round(100*sim.busy[id]/sim.t):0;return"<small>"+id+" "+MS[id].n.split(' ')[0]+" · "+u+'%</small><div class="bar"><i style="width:'+u+"%;background:"+MC[i]+'"></i></div>'}).join("");
+ $("feed").innerHTML=sim.log.length?sim.log.slice(-7).reverse().map(r=>{const c=ICON[r.k]||["•","--c1"];return'<div class="ev" style="--a:var('+c[1]+')"><span>'+c[0]+"</span><span><b>Day "+r.d+"</b> · "+r.x+"</span></div>"}).join(""):'<p class="mu">No events yet. Press +7 days or Auto-play.</p>';
+ $("orders").innerHTML="<table><tr><th>Order</th><th>Customer</th><th>Units</th><th>Due</th><th>Progress</th><th>Status</th></tr>"+sim.orders.map(o=>{
+  const js=sim.jobs.filter(j=>j.o===o),tt=js.reduce((a,j)=>a+j.tot,0),dn=js.reduce((a,j)=>a+j.tot-j.rem,0),pr=Math.round(100*dn/tt),d=sim.done[o.id];
+  const [st,c]=d!==undefined?(d>o.dl?["Late","--c5"]:["On time","--c3"]):o.on?(sim.t>o.dl?["LATE","--c5"]:["In progress","--c1"]):["Waiting","--c4"];
+  return"<tr><td><b>"+o.id+"</b>"+(o.rush?" ⚡":"")+"</td><td>"+o.cust+"</td><td>"+o.qty.toLocaleString("en-IN")+"</td><td>day "+Math.floor(o.dl/HPD)+'</td><td style="min-width:80px"><div class="bar"><i style="width:'+pr+"%;background:"+hue(o.id)+'"></i></div></td><td><span class="st" style="background:var('+c+')">'+st+"</span></td></tr>"}).join("")+"</table>";
+ $("log").innerHTML=sim.log.length?"<table><tr><th>Day</th><th>Event</th><th>Machine</th><th>Explanation</th></tr>"+sim.log.slice().reverse().map(r=>{const c=ICON[r.k]||["•","--c1"];return"<tr><td>"+r.d+"</td><td>"+c[0]+" "+r.k+"</td><td>"+(r.m||"–")+"</td><td>"+r.x+"</td></tr>"}).join("")+"</table>":'<p class="mu">No decisions yet.</p>';
+ gantt();trend()}
+
+function cv(id,H){const c=$(id),W=c.clientWidth||600,d=window.devicePixelRatio||1;c.width=W*d;c.height=H*d;const x=c.getContext("2d");x.scale(d,d);x.font="11px sans-serif";return[x,W]}
+function gantt(){
+ const H=240,[x,W]=cv("g",H),LW=Math.min(110,W*.22),top=18,rh=(H-top-4)/5,d0=Math.max(0,sim.day()-17),t0=d0*HPD,sp=20*HPD,sx=t=>LW+(t-t0)/sp*(W-LW-4);
+ x.strokeStyle=css("--bd");x.fillStyle=css("--mu");
+ for(let d=0;d<=20;d++){const px=sx(t0+d*HPD);x.beginPath();x.moveTo(px,top);x.lineTo(px,H-4);x.stroke();if(d%2===0)x.fillText("d"+(d0+d),px+2,12)}
+ IDS.forEach((k,i)=>{x.fillStyle=MC[i];x.fillRect(0,top+i*rh+4,4,rh-8);x.fillStyle=css("--tx");x.fillText(k+" "+MS[k].n.split(" ")[0],9,top+i*rh+rh/2+4)});
+ for(const g of sim.seg){if(g.e<=t0||g.s>=t0+sp)continue;const i=IDS.indexOf(g.m),a=sx(Math.max(g.s,t0)),b=sx(Math.min(g.e,t0+sp));
+  x.fillStyle=g.kind==="pm"?"#f59e0b":g.kind==="fail"?"#f43f5e":hue(g.o);x.beginPath();x.roundRect?x.roundRect(a,top+i*rh+3,Math.max(2,b-a),rh-6,4):x.rect(a,top+i*rh+3,Math.max(2,b-a),rh-6);x.fill();
+  if(g.kind==="job"&&b-a>30){x.fillStyle="#fff";x.fillText(g.o,a+4,top+i*rh+rh/2+4)}}
+ const nx=sx(sim.t);x.strokeStyle=css("--tx");x.setLineDash([4,3]);x.beginPath();x.moveTo(nx,top);x.lineTo(nx,H-4);x.stroke();x.setLineDash([]);x.fillStyle=css("--tx");x.fillText("now",nx+3,12)}
+function trend(){
+ const H=200,[x,W]=cv("tr",H),L=32,B=16,Y=v=>H-B-v*(H-B-6),n=Math.min(45,sim.rh.M1.length),st=sim.rh.M1.length-n;
+ x.fillStyle="rgba(244,63,94,.10)";x.fillRect(L,Y(1),W-L-4,Y(.7)-Y(1));x.fillStyle="rgba(245,158,11,.10)";x.fillRect(L,Y(.7),W-L-4,Y(.3)-Y(.7));x.fillStyle="rgba(16,185,129,.10)";x.fillRect(L,Y(.3),W-L-4,Y(0)-Y(.3));
+ x.fillStyle=css("--mu");[0,.3,.7,1].forEach(v=>x.fillText(Math.round(v*100)+"%",0,Y(v)+3));
+ IDS.forEach((k,i)=>{x.strokeStyle=MC[i];x.lineWidth=2;x.beginPath();sim.rh[k].slice(st).forEach((v,j)=>{const px=L+j/Math.max(n-1,1)*(W-L-4);j?x.lineTo(px,Y(v)):x.moveTo(px,Y(v))});x.stroke()});x.lineWidth=1;
+ $("trl").innerHTML=IDS.map((k,i)=>'<span><i style="background:'+MC[i]+'"></i>'+k+"</span>").join("")+"<span>green &lt;30% · amber 30–70% · red &gt;70%</span>"}
+
+function say(w,t){const d=document.createElement("div");d.className="b "+w;d.textContent=t;$("chat").appendChild(d);$("chat").scrollTop=1e9}
+function ans(q){const l=q.toLowerCase(),al={lathe:1,mill:2,drill:3,mould:4,mold:4,injection:4,pack:5};let id=(l.match(/\bm([1-5])\b/)||[])[1];id=id?"M"+id:null;
+ if(!id)for(const a in al)if(l.includes(a))id="M"+al[a];
+ let m;const k=sim.kpis();
+ if(id&&/\bservice\b/.test(l)&&!/why|when/.test(l)){const ok=sim.service(id);render();return ok?"Service requested for "+MS[id].n+" ("+id+"). It will start at the first idle slot, within a day at the latest.":MS[id].n+" is already down, in maintenance, or has a pending request."}
+ if(m=l.match(/rush.*?(\d[\d,]*)/)){const u=+m[1].replace(/,/g,""),o=sim.rush(u);render();return"Done. Rush order "+o.id+" for "+u.toLocaleString("en-IN")+" units is in, due on day "+Math.floor(o.dl/HPD)+". Urgent work now goes first."}
+ if(id&&/(simulate|inject|force|make|trigger)/.test(l)&&/(break|fail)/.test(l)){sim.forced.add(id);return"OK. "+MS[id].n+" ("+id+") will break at its next running hour. Advance time and watch the agent re-dispatch."}
+ if(/why|reason|explain/.test(l)){const r=sim.log.filter(x=>!id||x.m===id).slice(-3);return r.length?r.map(x=>"Day "+x.d+" – "+x.k+": "+x.x).join("\n\n"):"I have not made a decision about that yet. Advance a few days and ask again."}
+ if(/risk|health|status|condition/.test(l))return(id?[id]:IDS).map(i=>{const s=sim.status(i);return i+" "+MS[i].n+": "+s.state+", 7-day failure risk "+Math.round(s.risk*100)+"%, wear "+Math.round(s.usage*100)+"% of typical life"}).join("\n");
+ if(/late|deadline|deliver/.test(l))return k.comp+" of "+k.rel+" released orders are finished. "+k.late+" are late (penalties INR "+fmt(k.lc)+").";
+ if(/cost|kpi|downtime|breakdown|summary/.test(l))return"Day "+sim.day()+"/"+sim.days+": "+k.bd+" breakdowns, "+k.pm+" planned maintenances, "+k.down+" downtime hours, "+k.late+" late orders. Total cost INR "+fmt(k.tot)+" (breakdowns "+fmt(k.bdc)+", maintenance "+fmt(k.pmc)+", late penalties "+fmt(k.lc)+").";
+ if(/schedule|plan|next|today|tomorrow|running/.test(l))return"Right now:\n"+IDS.map(i=>{const s=sim.m[i],j=s.cur?s.cur.j:null;return i+": "+(s.pmLeft>0?"maintenance":s.down>sim.t?"under repair":j?"running "+j.o.id+" "+SN[j.st]:"idle")+(s.pmReq!==null?" (maintenance requested)":"")}).join("\n");
+ return"I can answer: Why is M2 under maintenance? · Show machine risk · Any late orders? · Cost summary · What is running now? · Add a rush order of 5000 units · Simulate breakdown on M3."}
+function ask(q){if(!q.trim())return;say("u",q);say("a",ans(q));render()}
+
+function compare(){const hz=Math.min(180,Math.max(30,+$("hz").value)),res={};for(const p in PN)res[p]=[1,2,3].map(sd=>{const s=Sim(p,sd,+$("no").value,hz,model);s.advance(s.T);return s.kpis()});
+ const av=(p,f)=>res[p].reduce((a,x)=>a+x[f],0)/3,mx=Math.max(...Object.keys(PN).map(p=>av(p,"tot"))),col={agent:"--c3",fixed30:"--c4",reactive:"--c5"};
+ let h='<div class="two">'+Object.keys(PN).map(p=>'<div class="k" style="--a:var('+col[p]+')"><span>'+PN[p]+"</span><b>INR "+fmt(av(p,"tot"))+"</b><small>"+av(p,"bd").toFixed(1)+" breakdowns · "+av(p,"down").toFixed(0)+" h downtime · "+av(p,"late").toFixed(1)+" late orders</small></div>").join("")+"</div>";
+ h+='<div class="scroll" style="margin-top:12px"><table><tr><th>Policy</th><th>Breakdowns</th><th>Planned maint.</th><th>Downtime (h)</th><th>Late orders</th><th>Total cost (INR)</th><th style="width:28%">Cost split</th></tr>';
+ for(const p in PN){const t=av(p,"tot");h+="<tr><td><b>"+PN[p]+"</b></td><td>"+av(p,"bd").toFixed(1)+"</td><td>"+av(p,"pm").toFixed(1)+"</td><td>"+av(p,"down").toFixed(0)+"</td><td>"+av(p,"late").toFixed(1)+"</td><td>"+fmt(t)+'</td><td><div style="display:flex;height:16px;border-radius:5px;overflow:hidden;width:'+Math.max(4,t/mx*100)+'%"><span style="flex:'+av(p,"bdc")+';background:var(--c5)"></span><span style="flex:'+av(p,"pmc")+';background:var(--c4)"></span><span style="flex:'+av(p,"lc")+';background:var(--c2)"></span></div></td></tr>'}
+ const a=av("agent","tot"),f=av("fixed30","tot"),r=av("reactive","tot");
+ $("cmp").innerHTML=h+'</table></div><div class="leg"><span><i style="background:var(--c5)"></i>Breakdowns</span><span><i style="background:var(--c4)"></i>Maintenance</span><span><i style="background:var(--c2)"></i>Late penalties</span></div><p><span class="st" style="background:var(--c3);font-size:13px;padding:5px 12px">AI agent saves '+Math.round((1-a/r)*100)+"% vs reactive and "+Math.round((1-a/f)*100)+"% vs fixed 30-day</span> <span class='mu'>(simulated factory, average of 3 seeds)</span></p>"}
+
+const TABS=[["dash","📊 Dashboard"],["cmp","⚖️ Policy comparison"],["lab","🎛️ What-if lab"],["chat","💬 Ask the agent"],["log","📜 Decision log"],["about","ℹ️ How it works"]];
+$("tabs").innerHTML=TABS.map(t=>'<button data-t="'+t[0]+'">'+t[1]+"</button>").join("");
+function tab(n){TABS.forEach(t=>$("t-"+t[0]).classList.toggle("hide",t[0]!==n));document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===n));if(n==="dash"&&sim){gantt();trend()}}
+$("tabs").onclick=e=>{if(e.target.dataset.t)tab(e.target.dataset.t)};
+$("reset").onclick=reset;$("d1").onclick=()=>{sim.advance(HPD);render()};$("d7").onclick=()=>{sim.advance(7*HPD);render()};$("end").onclick=()=>{stop();sim.advance(sim.T);render()};$("play").onclick=play;
+$("rush").onclick=()=>{sim.rush(5000);render()};$("brk").onclick=()=>{sim.forced.add($("bm").value);sim.advance(1);render()};
+$("runcmp").onclick=()=>{$("cmp").textContent="Simulating…";setTimeout(compare,30)};
+$("send").onclick=()=>{ask($("q").value);$("q").value=""};$("q").onkeydown=e=>{if(e.key==="Enter")$("send").click()};
+$("chips").innerHTML=["Show machine risk","Why is M4 under maintenance?","Any late orders?","Cost summary","What is running now?","Add a rush order of 5000 units","Simulate breakdown on M2"].map(t=>'<button class="chip">'+t+"</button>").join("");
+$("chips").onclick=e=>{if(e.target.classList.contains("chip"))ask(e.target.textContent)};
+$("th").onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark";if(sim)render()};
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("on"),2600)}
+function extra(){
+ const c=sim.log.reduce((a,r)=>(a[r.k]=(a[r.k]||0)+1,a),{});
+ const P=[["1 Sense","#6366f1",sim.cnt.sense+" sensor readings"],["2 Predict","#06b6d4",sim.cnt.pred+" risk scores"],["3 Decide","#10b981",(c.PM_REQUEST||0)+" maintenance decisions"],["4 Act","#f59e0b",(c.PM_DONE||0)+" services done"],["5 Explain","#f43f5e",sim.log.length+" logged reasons"]];
+ $("pipe").innerHTML=P.map(p=>'<span style="background:'+p[1]+'">'+p[0]+" · "+p[2]+"</span>").join("");
+ const last=sim.log[sim.log.length-1];$("pipeTxt").textContent=last?"Latest: day "+last.d+" – "+last.x:"Waiting for the first day to run. Press +1 day or Auto-play.";
+ const st0=Math.max(0,sim.rh.M1.length-30);
+ $("hm").innerHTML=IDS.map(k=>'<div class="hr"><small>'+k+"</small>"+sim.rh[k].slice(st0).map((v,j)=>'<i title="'+k+" day "+(st0+j)+": "+Math.round(v*100)+'% risk" style="background:'+(v>=.7?"var(--c5)":v>=.3?"var(--c4)":"var(--c3)")+";opacity:"+(.3+.7*Math.min(1,v*1.8)).toFixed(2)+'"></i>').join("")+"</div>").join("");
+ const k=$("lm").value||"M1",m=sim.m[k],loss=m.risk*bdT(k)*sim.sens,cost=pmT(k),mx=Math.max(loss,cost,1),wear=m.since/MS[k].life,go=loss>cost&&wear>.3;
+ $("calc").innerHTML="<small class='mu'>"+MS[k].n+" · risk "+Math.round(m.risk*100)+"% · wear "+Math.round(wear*100)+"% · sensitivity ×"+sim.sens.toFixed(1)+"</small><small style='display:block;margin-top:6px'>Expected breakdown loss: <b>INR "+fmt(loss)+"</b></small><div class='bar'><i style='width:"+loss/mx*100+"%;background:var(--c5)'></i></div><small>Maintenance cost: <b>INR "+fmt(cost)+"</b></small><div class='bar'><i style='width:"+cost/mx*100+"%;background:var(--c4)'></i></div><div class='big' style='font-size:15px;margin-top:6px'>"+(go?"✅ Maintain now":wear<=.3?"🟢 Keep running (wear still below 30%)":"⏳ Keep running (loss is below the maintenance cost)")+"</div>"}
+IDS.forEach(k=>$("lm").add(new Option(k+" "+MS[k].n,k)));
+$("lm").onchange=()=>extra();
+$("sens").oninput=()=>{sim.sens=+$("sens").value/100;$("sensv").textContent="×"+sim.sens.toFixed(1);extra()};
+$("cards").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.svc)toast(sim.service(b.dataset.svc)?"Service requested for "+b.dataset.svc:b.dataset.svc+" is already busy or has a request");
+ if(b.dataset.brk){sim.forced.add(b.dataset.brk);sim.advance(1);toast("💥 "+b.dataset.brk+" breakdown triggered")}render()};
+$("sc1").onclick=()=>{IDS.slice().sort((a,b)=>sim.m[b].since/MS[b].life-sim.m[a].since/MS[a].life).slice(0,2).forEach(k=>sim.forced.add(k));sim.advance(2);toast("🔥 Two machines broke down");render()};
+$("sc2").onclick=()=>{[3000,5000,8000].forEach(q=>sim.rush(q));toast("⚡ Three rush orders added");render()};
+$("sc3").onclick=()=>{const n=IDS.filter(k=>sim.service(k)).length;toast("🧰 Service requested on "+n+" machine(s)");render()};
+$("rq1").onclick=()=>{sim.rush(+$("rq").value||5000);toast("⚡ Rush order added");render()};
+window.addEventListener("resize",()=>sim&&(gantt(),trend()));
+
+$("kpis").innerHTML='<div class="k" style="--a:var(--c1)"><span>Please wait</span><b>Training the failure-prediction model…</b></div>';
+setTimeout(()=>{model=trainModel();
+ $("about").innerHTML="<h3>How the agent works</h3><div class='flow'><span style='background:#6366f1'>1 Sense</span><span style='background:#06b6d4'>2 Predict</span><span style='background:#10b981'>3 Decide</span><span style='background:#f59e0b'>4 Act</span><span style='background:#f43f5e'>5 Explain</span></div><ol><li><b>Sense:</b> each morning it reads temperature, vibration, current and hours since service for every machine.</li><li><b>Predict:</b> a logistic-regression model, trained in your browser on simulated machine history, estimates each machine’s chance of failing in the next 7 days (held-out ROC-AUC "+model.auc.toFixed(2)+", "+model.rows.toLocaleString("en-IN")+" training rows).</li><li><b>Decide:</b> cost rule: request maintenance when risk × breakdown cost is greater than maintenance cost. Jobs are dispatched earliest-deadline-first along the route Lathe → Milling → Drill, Moulding in parallel, Packaging last.</li><li><b>Act:</b> maintenance starts in the first idle slot (or at the latest within its window). A breakdown, rush order or new maintenance request changes the plan immediately.</li><li><b>Explain:</b> every decision is logged with its numbers, and the chat answers why questions from that log.</li></ol><p class='mu'>All data is simulated. This browser edition uses a lightweight risk model and a dispatch-rule scheduler so it runs offline in one file; the Python project uses XGBoost and OR-Tools CP-SAT.</p>";
+ tab("dash");reset()},30);
+</script>
+</body>
+</html>
